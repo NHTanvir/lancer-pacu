@@ -50,11 +50,13 @@ fn parse_iso8601(s: &str) -> anyhow::Result<SystemTime> {
 
     // Compute Unix timestamp (simplified; ignores leap seconds)
     let days_in_month = [0u64, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    #[allow(clippy::manual_is_multiple_of)]
     let is_leap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
 
     let mut total_days: u64 = 0;
     // Days for years 1970..year
     for y in 1970..year {
+        #[allow(clippy::manual_is_multiple_of)]
         let leap = (y % 4 == 0 && y % 100 != 0) || (y % 400 == 0);
         total_days += if leap { 366 } else { 365 };
     }
@@ -90,6 +92,7 @@ pub fn format_timestamp_for_filename(t: SystemTime) -> String {
     // Days since epoch to calendar date
     let mut year = 1970u64;
     loop {
+        #[allow(clippy::manual_is_multiple_of)]
         let leap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
         let days_in_year = if leap { 366u64 } else { 365 };
         if remaining < days_in_year {
@@ -99,6 +102,7 @@ pub fn format_timestamp_for_filename(t: SystemTime) -> String {
         year += 1;
     }
     let days_in_month = [0u64, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    #[allow(clippy::manual_is_multiple_of)]
     let is_leap = (year % 4 == 0 && year % 100 != 0) || (year % 400 == 0);
     let mut month = 1u64;
     loop {

@@ -207,9 +207,9 @@ pub async fn run(ctx: &AwsContext, args: &[&str]) -> anyhow::Result<()> {
         {
             Ok(resp) => {
                 let creds = resp.credentials();
-                let ak = creds.and_then(|c| Some(c.access_key_id().to_owned()));
-                let sk = creds.and_then(|c| Some(c.secret_access_key().to_owned()));
-                let tok = creds.and_then(|c| Some(c.session_token().to_owned()));
+                let ak = creds.map(|c| c.access_key_id().to_owned());
+                let sk = creds.map(|c| c.secret_access_key().to_owned());
+                let tok = creds.map(|c| c.session_token().to_owned());
                 let exp = creds.and_then(|c| {
                     c.expiration()
                         .fmt(aws_sdk_sts::primitives::DateTimeFormat::DateTime)
