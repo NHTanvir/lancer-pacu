@@ -43,7 +43,7 @@ pub async fn run(ctx: AwsContext) -> anyhow::Result<()> {
                 }
                 let _ = rl.add_history_entry(&line);
 
-                let parts: Vec<&str> = line.splitn(64, ' ').collect();
+                let parts: Vec<&str> = line.split(' ').collect();
                 let cmd = parts[0];
                 let args = &parts[1..];
 
@@ -66,6 +66,10 @@ pub async fn run(ctx: AwsContext) -> anyhow::Result<()> {
                         }
                         let module_name = args[0];
                         let module_args = &args[1..];
+
+                        if ctx.dry_run {
+                            println!("{}", "[DRY-RUN] Module will not execute state-mutating API calls. Use --armed to enable.".yellow());
+                        }
 
                         let found: Option<&Module> = inventory::iter::<Module>
                             .into_iter()

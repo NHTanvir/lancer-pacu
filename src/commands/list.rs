@@ -1,7 +1,6 @@
 //! `list` command — prints all registered modules in a table.
 
 use comfy_table::{Table, Cell, presets::UTF8_FULL};
-use inventory;
 
 use crate::module::Module;
 

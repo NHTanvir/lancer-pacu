@@ -18,13 +18,14 @@ pub struct ModuleInfo {
     pub services: &'static [&'static str],
 }
 
+/// Type alias for module run function signatures.
+pub type ModuleRunFn =
+    fn(&AwsContext, &[&str]) -> Pin<Box<dyn Future<Output = anyhow::Result<()>> + Send>>;
+
 /// A registered module: metadata + async run function.
 pub struct Module {
     pub info: ModuleInfo,
-    pub run: fn(
-        &AwsContext,
-        &[&str],
-    ) -> Pin<Box<dyn Future<Output = anyhow::Result<()>> + Send>>,
+    pub run: ModuleRunFn,
 }
 
 // Allow inventory to collect Module instances submitted from any module file.

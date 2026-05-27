@@ -1,7 +1,6 @@
 //! `search` command — filter registered modules by term.
 
 use comfy_table::{Table, Cell, presets::UTF8_FULL};
-use inventory;
 
 use crate::module::Module;
 
@@ -137,11 +136,11 @@ mod tests {
     }
 
     #[test]
-    fn search_empty_term_returns_nothing() {
+    fn search_empty_term_returns_all() {
         let infos = vec![
             make_info("iam__enum_users", "ENUM", "Enumerate IAM users"),
         ];
-        // Empty string matches everything (contains("") is always true)
+        // Empty string matches everything (contains("") is always true) — it's a wildcard/no-filter
         let results = filter_infos(&infos, "");
         assert_eq!(results.len(), infos.len());
     }
