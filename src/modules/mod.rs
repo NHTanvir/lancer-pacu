@@ -28,3 +28,6 @@ pub mod organizations_assume_role;
 pub mod vpc_enum_lateral_movement;
 pub mod cloudtrail_csv_injection;
 pub mod sns_subscribe;
+pub mod rds_explore_snapshots;
+pub mod secrets_enum;
+pub mod systemsmanager_download_parameters;
