@@ -140,22 +140,24 @@ pub async fn run(ctx: &AwsContext, _args: &[&str]) -> anyhow::Result<()> {
     println!("{}", "Enumerating AMIs (owner=self)…".cyan());
     let mut amis: Vec<Ec2Ami> = Vec::new();
     {
-        let resp = ec2
+        let mut paginator = ec2
             .describe_images()
             .owners("self")
-            .send()
-            .await
-            .context("ec2:DescribeImages failed")?;
-        for img in resp.images() {
-            amis.push(Ec2Ami {
-                image_id: img.image_id().unwrap_or("<unknown>").to_owned(),
-                name: img.name().map(|s| s.to_owned()),
-                state: img
-                    .state()
-                    .map(|s| s.as_str().to_owned())
-                    .unwrap_or_else(|| "<unknown>".to_owned()),
-                creation_date: img.creation_date().map(|s| s.to_owned()),
-            });
+            .into_paginator()
+            .send();
+        while let Some(page) = paginator.next().await {
+            let page = page.context("ec2:DescribeImages page failed")?;
+            for img in page.images() {
+                amis.push(Ec2Ami {
+                    image_id: img.image_id().unwrap_or("<unknown>").to_owned(),
+                    name: img.name().map(|s| s.to_owned()),
+                    state: img
+                        .state()
+                        .map(|s| s.as_str().to_owned())
+                        .unwrap_or_else(|| "<unknown>".to_owned()),
+                    creation_date: img.creation_date().map(|s| s.to_owned()),
+                });
+            }
         }
     }
 
