@@ -20,3 +20,7 @@ pub mod lambda_backdoor_new_users;
 pub mod iam_backdoor_users_keys;
 pub mod iam_backdoor_assume_role;
 pub mod ec2_backdoor_ec2_sec_groups;
+pub mod detection_enum_services;
+pub mod detection_disruption;
+pub mod cloudtrail_download_event_history;
+pub mod guardduty_whitelist_ip;

@@ -26,6 +26,10 @@ aws-sdk-ec2 = "1.150"
 aws-sdk-s3 = "1.133"
 aws-sdk-lambda = "1.100"
 aws-sdk-eventbridge = "1.85"
+aws-sdk-cloudtrail = "1.90"
+aws-sdk-guardduty = "1.85"
+aws-sdk-cloudwatch = "1.85"
+aws-smithy-types = "1"
 aws-credential-types = "1"
 
 # Output
