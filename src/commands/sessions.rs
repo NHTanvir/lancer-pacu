@@ -9,6 +9,17 @@ use crate::db;
 use crate::module::AwsContext;
 
 // ---------------------------------------------------------------------------
+// Constants
+// ---------------------------------------------------------------------------
+
+/// All enumerable resource field names in the Session struct.
+const ALL_DATA_FIELDS: &[&str] = &[
+    "iam_users", "iam_roles", "iam_groups", "iam_policies", "iam_permissions",
+    "ec2_instances", "ec2_security_groups", "ec2_amis", "ec2_volumes", "ec2_snapshots",
+    "s3_buckets", "lambda_functions", "extra",
+];
+
+// ---------------------------------------------------------------------------
 // list_sessions
 // ---------------------------------------------------------------------------
 
@@ -27,7 +38,7 @@ pub async fn cmd_list_sessions(pool: &SqlitePool) {
             table.set_header(vec!["ID", "Name", "Created", "Active", "Keys"]);
 
             for s in &sessions {
-                let active_str = if s.active == 1 {
+                let active_str = if s.is_active() {
                     "* active".green().bold().to_string()
                 } else {
                     String::new()
@@ -271,11 +282,7 @@ pub async fn cmd_data(pool: &SqlitePool, resource_type: Option<&str>) {
                     "{} '{}'. Try one of: {}",
                     "Unknown resource type:".red(),
                     rt,
-                    all_fields
-                        .iter()
-                        .map(|(k, _)| *k)
-                        .collect::<Vec<_>>()
-                        .join(", ")
+                    ALL_DATA_FIELDS.join(", ")
                 ),
                 Some((_, val)) => {
                     println!("{}", pretty_json(val));
@@ -306,7 +313,7 @@ pub async fn cmd_services(pool: &SqlitePool) {
         }
     };
 
-    let all_fields: &[(&str, &str)] = &[
+    let all_fields = [
         ("iam_users", &active.iam_users),
         ("iam_roles", &active.iam_roles),
         ("iam_groups", &active.iam_groups),
@@ -386,7 +393,7 @@ mod tests {
     /// Verify that set_keys correctly extracts ak/sk and optional token from args.
     #[test]
     fn set_keys_parses_args() {
-        let args = vec!["AKIAIOSFODNN7EXAMPLE", "secretkey123", "token-optional"];
+        let args = ["AKIAIOSFODNN7EXAMPLE", "secretkey123", "token-optional"];
         let ak = args[0];
         let sk = args[1];
         let token = args.get(2).copied();
@@ -398,7 +405,7 @@ mod tests {
 
     #[test]
     fn set_keys_parses_without_token() {
-        let args = vec!["AKIAIOSFODNN7EXAMPLE", "secretkey123"];
+        let args = ["AKIAIOSFODNN7EXAMPLE", "secretkey123"];
         let ak = args[0];
         let sk = args[1];
         let token: Option<&str> = args.get(2).copied();
@@ -410,7 +417,7 @@ mod tests {
 
     #[test]
     fn set_keys_rejects_too_few_args() {
-        let args: Vec<&str> = vec!["only-one-arg"];
+        let args: &[&str] = &["only-one-arg"];
         assert!(args.len() < 2, "should require at least 2 args");
     }
 }

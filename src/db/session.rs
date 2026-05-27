@@ -37,3 +37,10 @@ pub struct Session {
 
     pub extra: String,
 }
+
+impl Session {
+    /// Returns true if this session is marked as active.
+    pub fn is_active(&self) -> bool {
+        self.active != 0
+    }
+}

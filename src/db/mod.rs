@@ -45,7 +45,8 @@ pub async fn open_pool() -> anyhow::Result<SqlitePool> {
         .ok_or_else(|| anyhow!("cannot determine platform data directory"))?
         .join("lancer-pacu");
 
-    std::fs::create_dir_all(&data_dir)
+    tokio::fs::create_dir_all(&data_dir)
+        .await
         .with_context(|| format!("failed to create data dir: {}", data_dir.display()))?;
 
     let db_path = data_dir.join("sessions.sqlite");

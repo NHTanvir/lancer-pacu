@@ -63,28 +63,29 @@ async fn main() -> anyhow::Result<()> {
 
     // Try to load the last active session and use its credentials.
     let mut ctx = match db::get_active_session(&pool).await {
-        Ok(Some(sess)) if sess.access_key_id.is_some() => {
-            println!(
-                "{} '{}' with stored credentials.",
-                "Resuming session:".green().bold(),
-                sess.name
-            );
-            AwsContext::from_keys(
-                sess.access_key_id.as_deref().unwrap(),
-                sess.secret_access_key.as_deref().unwrap_or(""),
-                sess.session_token.as_deref(),
-                sess.region.as_deref(),
-                dry_run,
-            )
-            .await
-        }
         Ok(Some(sess)) => {
-            println!(
-                "{} '{}' (no stored credentials — using default chain).",
-                "Resuming session:".green(),
-                sess.name
-            );
-            AwsContext::new(dry_run)
+            if let (Some(ak), Some(sk)) = (sess.access_key_id.as_deref(), sess.secret_access_key.as_deref()) {
+                println!(
+                    "{} '{}' with stored credentials.",
+                    "Resuming session:".green().bold(),
+                    sess.name
+                );
+                AwsContext::from_keys(
+                    ak,
+                    sk,
+                    sess.session_token.as_deref(),
+                    sess.region.as_deref(),
+                    dry_run,
+                )
+                .await
+            } else {
+                println!(
+                    "{} '{}' (no stored credentials — using default chain).",
+                    "Resuming session:".green(),
+                    sess.name
+                );
+                AwsContext::new(dry_run)
+            }
         }
         _ => AwsContext::new(dry_run),
     };
