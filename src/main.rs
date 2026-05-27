@@ -3,6 +3,7 @@
 
 mod commands;
 mod db;
+mod iam;
 mod module;
 mod modules;
 mod repl;

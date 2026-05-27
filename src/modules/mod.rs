@@ -7,3 +7,4 @@
 pub mod aws_enum_account;
 pub mod iam_enum_users_roles_policies_groups;
 pub mod iam_get_credential_report;
+pub mod iam_enum_permissions;
