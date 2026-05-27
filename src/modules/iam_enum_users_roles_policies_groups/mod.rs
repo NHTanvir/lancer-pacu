@@ -147,7 +147,7 @@ pub async fn run(ctx: &AwsContext, _args: &[&str]) -> anyhow::Result<()> {
                     attachment_count: policy.attachment_count().unwrap_or(0),
                     create_date: policy
                         .create_date()
-                        .map(|dt| fmt_datetime(dt)),
+                        .map(fmt_datetime),
                 });
             }
         }

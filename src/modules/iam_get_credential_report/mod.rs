@@ -95,15 +95,20 @@ pub async fn run(ctx: &AwsContext, _args: &[&str]) -> anyhow::Result<()> {
         .map(|s| s.to_owned())
         .unwrap_or_else(|_| String::from_utf8_lossy(csv_bytes).into_owned());
 
+    // Guard against empty or malformed credential reports.
+    if csv_text.trim().is_empty() {
+        anyhow::bail!("Credential report content is empty or malformed");
+    }
+
     // ── 3. Parse and display ───────────────────────────────────────────────
     let (headers, rows) = parse_credential_report_csv(&csv_text);
 
     let mut table = Table::new();
     table.load_preset(UTF8_FULL);
-    table.set_header(headers.iter().map(|h| Cell::new(h)));
+    table.set_header(headers.iter().map(Cell::new));
 
     for row in &rows {
-        table.add_row(row.iter().map(|c| Cell::new(c)));
+        table.add_row(row.iter().map(Cell::new));
     }
 
     println!("\n{}", "─── IAM Credential Report ───────────────────────────────".cyan());
@@ -114,6 +119,8 @@ pub async fn run(ctx: &AwsContext, _args: &[&str]) -> anyhow::Result<()> {
             .green()
             .bold()
     );
+
+    // Note: credential report not cached to session DB — it is large and frequently regenerated.
 
     Ok(())
 }
