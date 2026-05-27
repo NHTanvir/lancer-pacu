@@ -2,6 +2,7 @@
 //! AUTHORIZED USE ONLY. Default --dry-run mode active.
 
 mod commands;
+mod db;
 mod module;
 mod modules;
 mod repl;
@@ -46,7 +47,50 @@ async fn main() -> anyhow::Result<()> {
 
     print_banner(cli.armed);
 
-    let ctx = AwsContext::new(dry_run);
+    // Open (or create) the SQLite session database.
+    let pool = match db::open_pool().await {
+        Ok(p) => {
+            println!("{}", "Session DB opened.".green());
+            p
+        }
+        Err(e) => {
+            eprintln!("{} {e}", "Warning: could not open session DB:".yellow());
+            eprintln!("{}", "Session commands will be unavailable.".yellow());
+            // Continue without DB — the REPL will handle the None pool gracefully.
+            return repl::run(AwsContext::new(dry_run)).await;
+        }
+    };
+
+    // Try to load the last active session and use its credentials.
+    let mut ctx = match db::get_active_session(&pool).await {
+        Ok(Some(sess)) if sess.access_key_id.is_some() => {
+            println!(
+                "{} '{}' with stored credentials.",
+                "Resuming session:".green().bold(),
+                sess.name
+            );
+            AwsContext::from_keys(
+                sess.access_key_id.as_deref().unwrap(),
+                sess.secret_access_key.as_deref().unwrap_or(""),
+                sess.session_token.as_deref(),
+                sess.region.as_deref(),
+                dry_run,
+            )
+            .await
+        }
+        Ok(Some(sess)) => {
+            println!(
+                "{} '{}' (no stored credentials — using default chain).",
+                "Resuming session:".green(),
+                sess.name
+            );
+            AwsContext::new(dry_run)
+        }
+        _ => AwsContext::new(dry_run),
+    };
+
+    ctx.db_pool = Some(pool);
+
     repl::run(ctx).await
 }
 

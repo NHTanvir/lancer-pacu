@@ -39,6 +39,8 @@ pub struct AwsContext {
     /// When true: state-mutating API calls are permitted.
     pub armed: bool,
     pub sdk_config: SdkConfig,
+    /// SQLite session pool, present after DB initialisation.
+    pub db_pool: Option<sqlx::SqlitePool>,
 }
 
 impl AwsContext {
@@ -55,11 +57,11 @@ impl AwsContext {
             dry_run,
             armed: !dry_run,
             sdk_config,
+            db_pool: None,
         }
     }
 
     /// Create an AwsContext from explicit static credentials.
-    #[allow(dead_code)] // public API — used in future REPL `keys` command
     pub async fn from_keys(
         ak: &str,
         sk: &str,
@@ -88,6 +90,7 @@ impl AwsContext {
             dry_run,
             armed: !dry_run,
             sdk_config,
+            db_pool: None,
         }
     }
 }
