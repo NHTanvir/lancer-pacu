@@ -389,6 +389,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "aws-sdk-organizations"
+version = "1.115.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0825a893662ae83bee39c8912f05f83dc627f5ff2ca597367755faa583fa77c7"
+dependencies = [
+ "aws-credential-types",
+ "aws-runtime",
+ "aws-smithy-async",
+ "aws-smithy-http",
+ "aws-smithy-json",
+ "aws-smithy-observability",
+ "aws-smithy-runtime",
+ "aws-smithy-runtime-api",
+ "aws-smithy-types",
+ "aws-types",
+ "bytes",
+ "fastrand",
+ "http 0.2.12",
+ "http 1.4.1",
+ "regex-lite",
+ "tracing",
+]
+
+[[package]]
 name = "aws-sdk-s3"
 version = "1.133.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -421,6 +445,31 @@ dependencies = [
  "sha2 0.11.0",
  "tracing",
  "url",
+]
+
+[[package]]
+name = "aws-sdk-sns"
+version = "1.100.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6fd3423cd6073c97787dd14cc7308714fcac9173afa2ddbc0ba09df874a9eeb5"
+dependencies = [
+ "aws-credential-types",
+ "aws-runtime",
+ "aws-smithy-async",
+ "aws-smithy-http",
+ "aws-smithy-json",
+ "aws-smithy-observability",
+ "aws-smithy-query",
+ "aws-smithy-runtime",
+ "aws-smithy-runtime-api",
+ "aws-smithy-types",
+ "aws-smithy-xml",
+ "aws-types",
+ "fastrand",
+ "http 0.2.12",
+ "http 1.4.1",
+ "regex-lite",
+ "tracing",
 ]
 
 [[package]]
@@ -2151,7 +2200,9 @@ dependencies = [
  "aws-sdk-guardduty",
  "aws-sdk-iam",
  "aws-sdk-lambda",
+ "aws-sdk-organizations",
  "aws-sdk-s3",
+ "aws-sdk-sns",
  "aws-sdk-sts",
  "aws-smithy-types",
  "base64",

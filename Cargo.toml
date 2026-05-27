@@ -29,6 +29,8 @@ aws-sdk-eventbridge = "1.85"
 aws-sdk-cloudtrail = "1.90"
 aws-sdk-guardduty = "1.85"
 aws-sdk-cloudwatch = "1.85"
+aws-sdk-organizations = "1.85"
+aws-sdk-sns = "1.85"
 aws-smithy-types = "1"
 aws-credential-types = "1"
 

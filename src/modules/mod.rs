@@ -24,3 +24,7 @@ pub mod detection_enum_services;
 pub mod detection_disruption;
 pub mod cloudtrail_download_event_history;
 pub mod guardduty_whitelist_ip;
+pub mod organizations_assume_role;
+pub mod vpc_enum_lateral_movement;
+pub mod cloudtrail_csv_injection;
+pub mod sns_subscribe;
