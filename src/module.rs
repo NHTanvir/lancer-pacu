@@ -19,8 +19,13 @@ pub struct ModuleInfo {
 }
 
 /// Type alias for module run function signatures.
-pub type ModuleRunFn =
-    fn(&AwsContext, &[&str]) -> Pin<Box<dyn Future<Output = anyhow::Result<()>> + Send>>;
+///
+/// The `for<'ctx>` HRTB ensures the returned future captures the context
+/// lifetime. Args slices are required to live at least as long as `'ctx`.
+pub type ModuleRunFn = for<'ctx> fn(
+    &'ctx AwsContext,
+    &'ctx [&'ctx str],
+) -> Pin<Box<dyn Future<Output = anyhow::Result<()>> + Send + 'ctx>>;
 
 /// A registered module: metadata + async run function.
 pub struct Module {
@@ -129,11 +134,11 @@ mod tests {
         assert_eq!(m.info.services, &["sts"]);
     }
 
-    /// Verify the inventory is iterable (empty in week 1) without panicking.
+    /// Verify the inventory is iterable without panicking.
     #[test]
     fn inventory_iter_does_not_panic() {
         let count = inventory::iter::<Module>.into_iter().count();
-        // Week 1: no modules registered — count must be 0.
-        assert_eq!(count, 0, "expected empty module registry in week 1");
+        // Week 3+: at least 3 modules registered.
+        assert!(count >= 3, "expected at least 3 modules in inventory, got {count}");
     }
 }
