@@ -13,3 +13,7 @@ pub mod ec2_enum;
 pub mod ebs_enum_volumes_snapshots;
 pub mod ebs_download_snapshots;
 pub mod s3_download_bucket;
+pub mod lambda_enum;
+pub mod lambda_backdoor_new_roles;
+pub mod lambda_backdoor_new_sec_groups;
+pub mod lambda_backdoor_new_users;
