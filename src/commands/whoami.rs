@@ -34,3 +34,30 @@ pub async fn run(ctx: &AwsContext) {
         }
     }
 }
+
+// ---------------------------------------------------------------------------
+// Integration tests
+// ---------------------------------------------------------------------------
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn whoami_returns_result_not_panic() {
+        // Create an AwsContext with fake AWS credentials.
+        // This will fail with an AWS auth error (as expected), but the function
+        // must not panic — it should handle the error gracefully.
+        let ctx = AwsContext::from_keys(
+            "AKIAIOSFODNN7EXAMPLE",
+            "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+            None,
+            Some("us-east-1"),
+            true, // dry_run = true
+        )
+        .await;
+
+        // Call run() — it should return without panicking.
+        // The output goes to stdout/stderr, but we just verify no panic occurs.
+        run(&ctx).await;
+    }
+}
