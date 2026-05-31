@@ -4,7 +4,7 @@ use colored::Colorize;
 use rustyline::error::ReadlineError;
 use rustyline::DefaultEditor;
 
-use crate::commands::{list, search, sessions, whoami};
+use crate::commands::{list, proxy, search, sessions, whoami};
 use crate::module::{AwsContext, Module};
 
 const HISTORY_FILE: &str = ".lancer-pacu-history";
@@ -23,9 +23,17 @@ Session commands:
   load_session <name>               — load an existing session and set it active
   list_sessions                     — list all sessions (ID | Name | Created | Active | Keys)
   set_keys <ak> <sk> [token]        — store AWS keys in the active session
+  set_keys_imds                     — fetch credentials from IMDSv2 and store in active session
   swap_keys <session_name>          — load another session's keys and verify via STS
   data [resource_type]              — show cached JSON data from the active session
   services                          — show which resource types have cached data
+  export [filename]                 — export the active session to a JSON file
+  import <filename>                 — import a session from a JSON file and set it active
+
+Proxy commands:
+  set_proxy <socks5://host:port>    — configure a SOCKS5 proxy for the active session
+  proxy                             — show the currently configured proxy
+  clear_proxy                       — remove the proxy setting from the active session
 ";
 
 /// Start the interactive REPL. Blocks until the user exits.
@@ -167,6 +175,68 @@ pub async fn run(mut ctx: AwsContext) -> anyhow::Result<()> {
                     "services" => {
                         if let Some(pool) = &ctx.db_pool {
                             sessions::cmd_services(pool).await;
+                        } else {
+                            eprintln!("{}", "Session DB unavailable.".red());
+                        }
+                    }
+
+                    // -------------------------------------------------------
+                    // Export / Import
+                    // -------------------------------------------------------
+                    "export" => {
+                        if let Some(pool) = &ctx.db_pool {
+                            sessions::cmd_export(pool, args).await;
+                        } else {
+                            eprintln!("{}", "Session DB unavailable.".red());
+                        }
+                    }
+                    "import" => {
+                        if let Some(pool) = ctx.db_pool.clone() {
+                            if let Some(new_ctx) =
+                                sessions::cmd_import(&pool, args, ctx.dry_run).await
+                            {
+                                ctx = AwsContext { db_pool: Some(pool), ..new_ctx };
+                            }
+                        } else {
+                            eprintln!("{}", "Session DB unavailable.".red());
+                        }
+                    }
+
+                    // -------------------------------------------------------
+                    // IMDSv2
+                    // -------------------------------------------------------
+                    "set_keys_imds" => {
+                        if let Some(pool) = ctx.db_pool.clone() {
+                            if let Some(new_ctx) =
+                                sessions::cmd_set_keys_imds(&pool, ctx.dry_run).await
+                            {
+                                ctx = AwsContext { db_pool: Some(pool), ..new_ctx };
+                            }
+                        } else {
+                            eprintln!("{}", "Session DB unavailable.".red());
+                        }
+                    }
+
+                    // -------------------------------------------------------
+                    // Proxy
+                    // -------------------------------------------------------
+                    "set_proxy" => {
+                        if let Some(pool) = &ctx.db_pool {
+                            proxy::cmd_set_proxy(pool, args).await;
+                        } else {
+                            eprintln!("{}", "Session DB unavailable.".red());
+                        }
+                    }
+                    "proxy" => {
+                        if let Some(pool) = &ctx.db_pool {
+                            proxy::cmd_show_proxy(pool).await;
+                        } else {
+                            eprintln!("{}", "Session DB unavailable.".red());
+                        }
+                    }
+                    "clear_proxy" => {
+                        if let Some(pool) = &ctx.db_pool {
+                            proxy::cmd_clear_proxy(pool).await;
                         } else {
                             eprintln!("{}", "Session DB unavailable.".red());
                         }

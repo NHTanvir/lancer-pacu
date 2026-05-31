@@ -51,9 +51,18 @@ serde_json = "1"
 base64 = "0.22"
 urlencoding = "2"
 zip = "2"
+chrono = "0.4"
+
+# SOCKS proxy support (storage layer; full SDK integration deferred — see src/commands/proxy.rs)
+tokio-socks = "0.5"
+
+# IMDSv2 credential fetching
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls", "json"] }
 
 [profile.release]
 opt-level = 3
-lto = true
-codegen-units = 1
+# Use thin LTO instead of full LTO to avoid OOM on machines with limited RAM
+# when compiling many large AWS SDK crates simultaneously.
+lto = "thin"
+codegen-units = 4
 strip = true
